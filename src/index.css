@@ -6,34 +6,34 @@
 
 @layer base {
   :root {
-    /* Light theme – classy charcoal grey + soft gold */
-    --background: 210 15% 97%;        /* very light grey */
-    --foreground: 210 15% 16%;        /* charcoal */
+    /* Light theme – hero-style grey + orange accent */
+    --background: 210 14% 96%;        /* light grey like hero */
+    --foreground: 222 47% 11%;        /* dark slate text */
 
     --card: 0 0% 100%;
-    --card-foreground: 210 15% 16%;
+    --card-foreground: 222 47% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 210 15% 16%;
+    --popover-foreground: 222 47% 11%;
 
-    --primary: 210 18% 14%;           /* deep grey, almost black */
-    --primary-foreground: 0 0% 99%;
+    --primary: 222 47% 11%;           /* deep slate for primary elements */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 10% 92%;         /* soft panel grey */
-    --secondary-foreground: 210 15% 16%;
+    --secondary: 210 12% 92%;         /* soft panel grey */
+    --secondary-foreground: 222 47% 11%;
 
-    --muted: 210 12% 90%;
-    --muted-foreground: 210 8% 40%;
+    --muted: 210 10% 90%;
+    --muted-foreground: 215 15% 40%;
 
-    --accent: 43 85% 55%;             /* elegant warm gold */
+    --accent: 16 100% 60%;            /* #ff5c35 hero orange */
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 210 12% 86%;
-    --input: 210 12% 86%;
-    --ring: 210 18% 20%;
+    --border: 210 15% 88%;
+    --input: 210 15% 88%;
+    --ring: 16 100% 60%;
 
     --radius: 0.5rem;
 
@@ -47,10 +47,10 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
 
     /* Custom tokens */
-    --navy: 210 18% 14%;              /* reused as deep grey */
-    --gold: 43 85% 55%;
-    --warm-gray: 210 12% 90%;
-    --cream: 210 15% 97%;
+    --navy: 222 47% 11%;              /* dark slate */
+    --gold: 16 100% 60%;              /* reuse orange accent */
+    --warm-gray: 210 10% 90%;
+    --cream: 210 20% 97%;
 
     font-family: 'Inter', 'Segoe UI', sans-serif;
   }
