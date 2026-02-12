@@ -3,7 +3,8 @@ import { Mail } from "lucide-react";
 
 const FloatingSubscribe = () => {
   return (
-    <motion.button
+    <motion.a
+      href="/subscribe"
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 1.2, duration: 0.5 }}
@@ -11,7 +12,7 @@ const FloatingSubscribe = () => {
     >
       <Mail className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
       <span>Subscribe</span>
-    </motion.button>
+    </motion.a>
   );
 };
 
