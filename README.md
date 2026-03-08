@@ -1,73 +1,109 @@
-# Welcome to your Lovable project
+# Brainfeed Magazine
 
-## Project info
+This repository has **two separate projects**: frontend (React) and backend (Node/Express API).
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Project structure
 
-## How can I edit this code?
+```
+brainfeed-collective-main/
+├── frontend/     # React + Vite app (pages, admin, UI)
+├── backend/      # Node/Express API (auth, posts, MongoDB, Cloudinary)
+└── README.md
+```
 
-There are several ways of editing your application.
+## Quick start
 
-**Use Lovable**
+### 1. Backend
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+```bash
+cd backend
+cp .env.example .env
+# Edit .env: set MONGO_URI, JWT_SECRET, CLOUDINARY_*, ADMIN_EMAIL, ADMIN_PASSWORD
+npm install
+npm start
+```
 
-Changes made via Lovable will be committed automatically to this repo.
+API runs at **http://localhost:3001**.
 
-**Use your preferred IDE**
+### 2. Frontend
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
+cd frontend
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+App runs at **http://localhost:8080**. In dev, `/api` requests are proxied to the backend (3001).
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### 3. Deployment (production)
 
-**Use GitHub Codespaces**
+**Backend** (Railway, Render, Fly.io, etc.)
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+- Deploy the `backend/` folder. Set these env vars in the platform:
+  - `MONGO_URI`, `JWT_SECRET`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
+  - `ADMIN_EMAIL`, `ADMIN_PASSWORD`
+  - Optional: `PORT` (default 3001), `HOST` (default 0.0.0.0)
+  - Optional: `CORS_ORIGIN` or `FRONTEND_URL` – your frontend URL(s), comma-separated, so the API only accepts requests from your site. Leave unset to allow all origins.
+- Start command: `npm start` (runs `node index.cjs`).
 
-## What technologies are used for this project?
+**Frontend** (Vercel, Netlify, etc.)
 
-This project is built with:
+- Set **build-time** env var: `VITE_API_URL` = your backend URL (e.g. `https://your-api.railway.app`). This is baked into the build; set it in the platform’s “Environment variables” before building.
+- Build: `npm run build`. Publish the `dist/` folder.
+- SPA routing: `frontend/vercel.json` and `frontend/netlify.toml` are included so `/admin/posts`, `/news`, etc. work on refresh. Other hosts: serve `index.html` for all routes (single-page app).
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+**Common deployment errors**
 
-## How can I deploy this project?
+| Issue | Fix |
+|-------|-----|
+| White screen / API fails in production | Set `VITE_API_URL` to backend URL and **rebuild** the frontend. |
+| CORS errors | Set `CORS_ORIGIN` (or `FRONTEND_URL`) on the backend to your frontend URL. |
+| 404 on refresh (e.g. `/admin/posts`) | Use the included `vercel.json` / `netlify.toml`, or configure your host to serve `index.html` for all routes. |
+| Admin 401 after deploy | Ensure backend has `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `MONGO_URI` set and MongoDB is reachable. |
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+**Security:** Never commit `.env` (it’s in `.gitignore`). Use strong `JWT_SECRET` and `ADMIN_PASSWORD` in production.
 
-## Can I connect a custom domain to my Lovable project?
+## Routing
 
-Yes, you can!
+- **Frontend**: All page routes (/, /about, /news, /blog, /admin/*, etc.) are handled by React Router. No changes needed.
+- **Backend**: API routes under `/api/*` (auth, admin, posts). No overlap with frontend routes.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## Feature checklist (verify each works)
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+| Feature | How to verify |
+|--------|----------------|
+| **Home** | Open `/` – hero, news, magazine section load. |
+| **About** | Open `/about` – text and magazine editions. |
+| **News** | Open `/news` – list from API (`/api/articles`). Filter by category, search. |
+| **Blog** | Open `/blog` – list from API (`/api/posts/blogs`). Pagination, filter, search. |
+| **Subscribe** | Open `/subscribe` – plans and cart. |
+| **Contact** | Open `/contact` – form and address. |
+| **Policy pages** | `/cancellation-refund-policy`, `/privacy-policy`, `/shipping-policy`, `/terms-and-conditions` – content loads. |
+| **User auth** | `/login`, `/signup` – sign up, log in, then `/profile` – update profile. |
+| **Cart** | Add items from Subscribe, open `/cart`. |
+| **Admin** | Open `/admin/login` – log in with `.env` ADMIN_EMAIL / ADMIN_PASSWORD. Then: **News posts**, **Blog posts** (list), **Add news** / **Add blog** (create with title, content, featured image, format tabs). Edit/delete from list. Selected post shows **views** at bottom. |
+| **API** | Backend must be running (e.g. `cd backend && npm start`). Frontend dev proxies `/api` to `http://localhost:3001`. |
+
+## Run from root (optional)
+
+From the repo root (same folder as `frontend/` and `backend/`):
+
+```bash
+npm run install:all   # once: installs deps in frontend + backend
+npm run server        # terminal 1 – starts backend (port 3001)
+npm run dev           # terminal 2 – starts frontend (port 8080)
+```
+
+If `install:all` fails on Windows PowerShell, run manually:
+
+```bash
+cd frontend && npm install
+cd ../backend && npm install
+```
+
+## Troubleshooting
+
+- **Admin 401**: Ensure backend has `.env` with `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `MONGO_URI`. Restart backend after changing `.env`.
+- **News/Blog empty**: Backend must be running and MongoDB connected. Add posts via Admin to see them.
+- **API calls fail in dev**: Frontend runs on 8080 and proxies `/api` to 3001. Ensure backend is running on 3001.
+- **API calls fail in production**: Set `VITE_API_URL` to your backend URL when building the frontend (`npm run build`).
