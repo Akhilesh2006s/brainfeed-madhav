@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import primaryICover from "@/assets/WhatsApp Image 2026-02-10 at 10.48.30 AM (2).jpeg";
 import mainCover from "@/assets/WhatsApp Image 2026-02-10 at 10.48.30 AM.jpeg";
 import juniorCover from "@/assets/WhatsApp Image 2026-02-10 at 10.48.30 AM (1).jpeg";
@@ -105,10 +106,13 @@ const MagazineSection = () => {
                 </p>
 
                 <div className="mt-4 flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.24em] text-foreground/70">
-                  <button className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-foreground group-hover:text-accent transition-colors">
+                  <Link
+                    to={`/magazine/${magazine.id}`}
+                    className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-foreground group-hover:text-accent transition-colors"
+                  >
                     View Issue
                     <span className="text-base translate-y-[1px]">↗</span>
-                  </button>
+                  </Link>
                   <span className="text-muted-foreground/70">Print &amp; Digital</span>
                 </div>
               </div>
@@ -125,13 +129,13 @@ const MagazineSection = () => {
             Print subscriptions available across India. International and digital access on
             request.
           </p>
-          <a
-            href="#"
+          <Link
+            to="/subscribe"
             className="inline-flex items-center gap-2 text-foreground hover:text-accent transition-colors"
           >
             Explore subscription plans
             <span className="text-sm">→</span>
-          </a>
+          </Link>
         </ScrollReveal>
       </div>
     </section>

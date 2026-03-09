@@ -64,7 +64,7 @@ const HeroSection = () => {
 
           <div className="flex flex-col gap-3 pt-1 w-full max-w-[280px] sm:max-w-[320px]">
             <motion.a
-              href="#news"
+              href="/subscribe"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className="inline-flex items-center justify-center gap-2 rounded-md bg-[#ff5c35] px-6 py-3.5 min-h-[48px] text-sm font-semibold uppercase tracking-[0.18em] text-white shadow-md"
@@ -73,7 +73,7 @@ const HeroSection = () => {
               <span className="text-base translate-y-[1px]">→</span>
             </motion.a>
             <motion.a
-              href="#"
+              href="/subscribe"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className="inline-flex items-center justify-center rounded-md bg-slate-900/90 text-white px-6 py-3.5 min-h-[48px] text-sm font-semibold uppercase tracking-[0.18em] border border-white hover:bg-slate-800/90 transition-colors"

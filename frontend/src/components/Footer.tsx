@@ -27,7 +27,6 @@ const Footer = () => {
                 { label: "Home", href: "/" },
                 { label: "About Us", href: "/about" },
                 { label: "News", href: "/news" },
-                { label: "Blog", href: "/blog" },
                 { label: "Subscribe", href: "/subscribe" },
                 { label: "Contact Us", href: "/contact" },
               ].map(({ label, href }) => (
@@ -51,9 +50,19 @@ const Footer = () => {
           <div>
             <h4 className="font-serif text-background text-base sm:text-lg mb-4 sm:mb-5">Categories</h4>
             <ul className="space-y-2.5 sm:space-y-3 text-[13px] sm:text-sm font-sans">
-              {["Education", "Technology", "Parenting", "Expert View", "Press Release"].map(link => (
-                <li key={link}>
-                  <a href="#" className="hover:text-accent transition-colors duration-300">{link}</a>
+              {[
+                { label: "All News", href: "/news" },
+                { label: "Achievement", href: "/news?category=achievement" },
+                { label: "Press Release", href: "/news?category=press-release" },
+                { label: "Education", href: "/news" },
+                { label: "Technology", href: "/news" },
+                { label: "Parenting", href: "/news" },
+                { label: "Expert View", href: "/news?category=expert-view" },
+              ].map(({ label, href }) => (
+                <li key={label}>
+                  <a href={href} className="hover:text-accent transition-colors duration-300">
+                    {label}
+                  </a>
                 </li>
               ))}
             </ul>
@@ -61,12 +70,26 @@ const Footer = () => {
 
           <div>
             <h4 className="font-serif text-background text-base sm:text-lg mb-4 sm:mb-5">Connect</h4>
-            <div className="flex gap-3 sm:gap-4">
+            <div className="flex items-center gap-3 sm:gap-4">
               {[Facebook, Twitter, Instagram, Linkedin, Youtube, Mail].map((Icon, i) => (
                 <motion.a
                   key={i}
-                  href="#"
-                  className="text-background/50 hover:text-accent transition-colors duration-300 p-2 -m-2 min-h-[44px] min-w-[44px] flex items-center justify-center touch-manipulation md:min-h-0 md:min-w-0 md:p-0"
+                  href={
+                    i === 0
+                      ? "https://www.facebook.com/brainfeededumag"
+                      : i === 1
+                      ? "https://twitter.com/brainfeededumag"
+                      : i === 2
+                      ? "https://www.instagram.com/brainfeededumag/"
+                      : i === 3
+                      ? "https://www.linkedin.com/in/brainfeededumag/"
+                      : i === 4
+                      ? "https://www.youtube.com/@brainfeedmagazine"
+                      : "mailto:info@brainfeedmagazine.com"
+                  }
+                  target={i === 5 ? undefined : "_blank"}
+                  rel={i === 5 ? undefined : "noreferrer"}
+                  className="text-background/50 hover:text-accent transition-colors duration-300 flex items-center justify-center"
                   whileHover={{ scale: 1.2, y: -2 }}
                 >
                   <Icon className="h-5 w-5" />

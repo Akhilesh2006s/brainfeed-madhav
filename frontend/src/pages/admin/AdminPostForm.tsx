@@ -12,8 +12,18 @@ import { toast } from "sonner";
 
 const API_BASE = (import.meta.env.VITE_API_URL as string) || "";
 
-const NEWS_CATEGORIES = ["Achievement", "Press Release", "Expert View"];
-const BLOG_CATEGORIES = ["Education", "Policy", "Parenting", "Expert View", "Technology"];
+const NEWS_CATEGORIES = [
+  "Achievement",
+  "Press Release",
+  "Career",
+  "Education",
+  "Institutional Profile",
+  "Internship",
+  "Jobs",
+  "Science & Environment",
+  "Technology",
+  "Expert View",
+];
 const FORMATS = [
   { value: "standard", label: "Standard" },
   { value: "gallery", label: "Gallery" },
@@ -27,7 +37,9 @@ const FORMATS = [
 function RichTextEditor({ value, onChange, placeholder }: { value: string; onChange: (html: string) => void; placeholder?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const isInternal = useRef(false);
+  const savedRange = useRef<Range | null>(null);
   const [formatState, setFormatState] = useState({ bold: false, italic: false, underline: false, strike: false });
+  const [imagePosition, setImagePosition] = useState<"center" | "left" | "right" | "full">("center");
 
   const updateFormatState = () => {
     const el = ref.current;
@@ -35,6 +47,9 @@ function RichTextEditor({ value, onChange, placeholder }: { value: string; onCha
     const sel = window.getSelection();
     const inEditor = sel && (el.contains(sel.anchorNode) || el.contains(sel.focusNode));
     if (!inEditor) return;
+    if (sel && sel.rangeCount > 0) {
+      savedRange.current = sel.getRangeAt(0).cloneRange();
+    }
     setFormatState({
       bold: document.queryCommandState("bold"),
       italic: document.queryCommandState("italic"),
@@ -72,7 +87,13 @@ function RichTextEditor({ value, onChange, placeholder }: { value: string; onCha
 
   const addLink = () => {
     const url = window.prompt("Link URL:");
-    if (url) cmd("createLink", url);
+    if (!url) return;
+    const sel = window.getSelection();
+    if (savedRange.current && sel) {
+      sel.removeAllRanges();
+      sel.addRange(savedRange.current);
+    }
+    cmd("createLink", url);
   };
 
   const btn = (active: boolean) =>
@@ -106,6 +127,42 @@ function RichTextEditor({ value, onChange, placeholder }: { value: string; onCha
         <Button type="button" variant="ghost" size="icon" className="h-8 w-8" onClick={addLink} title="Insert link">
           <LinkIcon className="h-4 w-4" />
         </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => {
+            const url = window.prompt("Image URL:");
+            if (!url) return;
+            const alt = window.prompt("Image alt text (optional):") || "";
+            const sel = window.getSelection();
+            if (savedRange.current && sel) {
+              sel.removeAllRanges();
+              sel.addRange(savedRange.current);
+            }
+            const safeAlt = alt.replace(/"/g, "&quot;");
+            const baseClass = "news-image";
+            const posClass = `news-image--${imagePosition}`;
+            const html = `<figure class="${baseClass} ${posClass}"><img src="${url}" alt="${safeAlt}"></figure>`;
+            document.execCommand("insertHTML", false, html);
+            emit();
+            setTimeout(updateFormatState, 0);
+          }}
+          title="Insert inline image"
+        >
+          <ImagePlus className="h-4 w-4" />
+        </Button>
+        <select
+          className="ml-1 h-8 rounded-md border border-border bg-background px-2 text-[11px] text-muted-foreground"
+          value={imagePosition}
+          onChange={(e) => setImagePosition(e.target.value as "center" | "left" | "right" | "full")}
+        >
+          <option value="center">Image center</option>
+          <option value="left">Image left</option>
+          <option value="right">Image right</option>
+          <option value="full">Full width</option>
+        </select>
         <Button type="button" variant="ghost" size="icon" className="h-8 w-8" onClick={() => cmd("removeFormat")} title="Clear formatting">
           <Eraser className="h-4 w-4" />
         </Button>
@@ -125,7 +182,7 @@ function RichTextEditor({ value, onChange, placeholder }: { value: string; onCha
 const AdminPostForm = () => {
   const [searchParams] = useSearchParams();
   const { id } = useParams();
-  const type = searchParams.get("type") === "blog" ? "blog" : "news";
+  const type = "news";
   const isEdit = Boolean(id);
   const { token } = useAdmin();
   const navigate = useNavigate();
@@ -141,14 +198,16 @@ const AdminPostForm = () => {
   const [audioUrl, setAudioUrl] = useState("");
   const [linkUrl, setLinkUrl] = useState("");
   const [quoteText, setQuoteText] = useState("");
+  const [showPreview, setShowPreview] = useState(false);
   const [featuredImage, setFeaturedImage] = useState<File | null>(null);
+  const [featuredImageAlt, setFeaturedImageAlt] = useState("");
   const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(isEdit);
 
-  const categories = type === "news" ? NEWS_CATEGORIES : BLOG_CATEGORIES;
+  const categories = NEWS_CATEGORIES;
 
   useEffect(() => {
     if (!category && categories.length) setCategory(categories[0]);
@@ -171,6 +230,7 @@ const AdminPostForm = () => {
           setAudioUrl(String((p.media as { audioUrl?: string })?.audioUrl || ""));
           setLinkUrl(String((p.media as { linkUrl?: string })?.linkUrl || ""));
           setQuoteText(String((p.media as { quoteText?: string })?.quoteText || ""));
+          setFeaturedImageAlt(String((p as any).featuredImageAlt || ""));
         })
         .catch(() => toast.error("Failed to load post"))
         .finally(() => setLoading(false));
@@ -193,6 +253,7 @@ const AdminPostForm = () => {
     formData.set("category", category.trim());
     formData.set("excerpt", excerpt.trim());
     formData.set("readTime", readTime.trim());
+    formData.set("featuredImageAlt", featuredImageAlt.trim());
     formData.set("videoUrl", videoUrl.trim());
     formData.set("audioUrl", audioUrl.trim());
     formData.set("linkUrl", linkUrl.trim());
@@ -226,9 +287,10 @@ const AdminPostForm = () => {
   return (
     <div>
       <h1 className="font-serif text-2xl text-foreground mb-6">
-        {isEdit ? "Edit post" : type === "news" ? "Add news" : "Add blog"}
+        {isEdit ? "Edit news article" : "Add news article"}
       </h1>
-      <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] items-start">
+        <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
         <div className="space-y-2">
           <Label>Title</Label>
           <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Add title" required className="h-11" />
@@ -276,6 +338,21 @@ const AdminPostForm = () => {
             onChange={(e) => setFeaturedImage(e.target.files?.[0] || null)}
             className="h-11"
           />
+          <p className="text-[11px] text-muted-foreground">
+            Upload the main image for the article. Use the field below for the image alt text (for accessibility and SEO).
+          </p>
+        </div>
+        <div className="space-y-2">
+          <Label>Featured image alt text</Label>
+          <Input
+            value={featuredImageAlt}
+            onChange={(e) => setFeaturedImageAlt(e.target.value)}
+            placeholder="Short description of the image"
+            className="h-11"
+          />
+          <p className="text-[11px] text-muted-foreground">
+            This text will be used as the <code>alt</code> attribute on the image.
+          </p>
         </div>
 
         <Tabs value={format} onValueChange={(v) => setFormat(v)}>
@@ -322,15 +399,54 @@ const AdminPostForm = () => {
           </TabsContent>
         </Tabs>
 
-        <div className="flex gap-3">
-          <Button type="submit" disabled={saving}>
-            {saving ? "Saving…" : isEdit ? "Update post" : "Create post"}
-          </Button>
-          <Button type="button" variant="outline" onClick={() => navigate(`/admin/posts?type=${type}`)}>
-            Cancel
-          </Button>
-        </div>
-      </form>
+          <div className="flex flex-wrap gap-3 items-center">
+            <Button type="submit" disabled={saving}>
+              {saving ? "Saving…" : isEdit ? "Update post" : "Create post"}
+            </Button>
+            <Button type="button" variant="outline" onClick={() => navigate(`/admin/posts?type=${type}`)}>
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              className="ml-auto text-xs"
+              onClick={() => setShowPreview((v) => !v)}
+            >
+              {showPreview ? "Hide preview" : "Show live preview"}
+            </Button>
+          </div>
+        </form>
+
+        {showPreview && (
+          <aside className="border border-border/60 rounded-2xl bg-card/60 p-5 space-y-4 max-h-[80vh] overflow-auto">
+            <h2 className="font-serif text-xl mb-2 text-foreground">Live preview</h2>
+            {category && (
+              <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-accent/10 text-accent text-[10px] font-semibold uppercase tracking-[0.16em]">
+                {category}
+              </span>
+            )}
+            <h3 className="font-serif text-2xl md:text-3xl text-foreground leading-tight">
+              {title || "Article title"}
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              {readTime || "4 min read"}
+            </p>
+            {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
+            {content ? (
+              <div className="news-article-body prose prose-sm sm:prose-base max-w-none text-foreground font-sans leading-relaxed mt-3">
+                <div
+                  className="space-y-4"
+                  dangerouslySetInnerHTML={{ __html: content }}
+                />
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground mt-3">
+                Start typing content on the left to see a live preview here, including any inline images you insert.
+              </p>
+            )}
+          </aside>
+        )}
+      </div>
     </div>
   );
 };

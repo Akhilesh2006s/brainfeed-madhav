@@ -3,17 +3,26 @@ import { createContext, useContext, useMemo, useState, useEffect, type ReactNode
 const API_BASE = (import.meta.env.VITE_API_URL as string) || "";
 const STORAGE_KEY = "brainfeed_admin";
 
+type AdminUser = {
+  id: string;
+  email: string;
+  role?: "admin" | "editor";
+};
+
 type AdminContextValue = {
   token: string | null;
+  admin: AdminUser | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<{ error?: string }>;
   logout: () => void;
+  isAdmin: boolean;
 };
 
 const AdminContext = createContext<AdminContextValue | undefined>(undefined);
 
 export const AdminProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
+  const [admin, setAdmin] = useState<AdminUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -23,7 +32,8 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
     try {
-      const { token: t } = JSON.parse(stored);
+      const parsed = JSON.parse(stored) as { token?: string; admin?: any };
+      const t = parsed.token;
       if (!t) {
         setIsLoading(false);
         return;
@@ -31,12 +41,24 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
       fetch(`${API_BASE}/api/admin/me`, {
         headers: { Authorization: `Bearer ${t}` },
       })
-        .then((res) => (res.ok ? true : false))
-        .then((ok) => {
-          if (!ok) localStorage.removeItem(STORAGE_KEY);
-          else setToken(t);
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (!data) {
+            localStorage.removeItem(STORAGE_KEY);
+            return;
+          }
+          const current: AdminUser = {
+            id: data.id || data._id,
+            email: data.email,
+            role: data.role,
+          };
+          setToken(t);
+          setAdmin(current);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({ token: t, admin: data }));
         })
-        .catch(() => localStorage.removeItem(STORAGE_KEY))
+        .catch(() => {
+          localStorage.removeItem(STORAGE_KEY);
+        })
         .finally(() => setIsLoading(false));
     } catch {
       localStorage.removeItem(STORAGE_KEY);
@@ -53,9 +75,15 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
       });
       const data = await res.json();
       if (!res.ok) return { error: data.error || "Login failed" };
-      const { token: t } = data;
+      const { token: t, admin: adminData } = data;
+      const current: AdminUser = {
+        id: adminData?.id || adminData?._id,
+        email: adminData?.email,
+        role: adminData?.role,
+      };
       setToken(t);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ token: t }));
+      setAdmin(current);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ token: t, admin: adminData }));
       return {};
     } catch {
       return { error: "Something went wrong. Please try again." };
@@ -64,12 +92,22 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = () => {
     setToken(null);
+    setAdmin(null);
     localStorage.removeItem(STORAGE_KEY);
   };
 
   const value = useMemo(
-    () => ({ token, isLoading, login, logout }),
-    [token, isLoading]
+    () => ({
+      token,
+      admin,
+      isLoading,
+      login,
+      logout,
+      // Only treat users with role === "admin" as full admins in the UI.
+      // Editors can still log in and manage news posts, but won't see Users/Products sections.
+      isAdmin: admin?.role === "admin",
+    }),
+    [token, admin, isLoading]
   );
 
   return <AdminContext.Provider value={value}>{children}</AdminContext.Provider>;

@@ -46,6 +46,16 @@ const Header = () => {
   const isActive = (href: string) =>
     href === "/" ? location.pathname === "/" : location.pathname.startsWith(href.replace(/#.*/, ""));
 
+  const isSubActive = (href: string) => {
+    const [path, query] = href.split("?");
+    if (location.pathname !== path) return false;
+    if (!query) {
+      // Treat plain /news as active when there is no category filter
+      return !location.search;
+    }
+    return location.search === "?" + query;
+  };
+
   return (
     <motion.header
       initial={{ opacity: 0 }}
@@ -86,7 +96,11 @@ const Header = () => {
                           <DropdownMenuItem asChild>
                             <Link
                               to={sub.href}
-                              className="cursor-pointer text-[13px] font-medium uppercase tracking-wide text-foreground focus:bg-accent/10 focus:text-accent py-2.5 px-3"
+                              className={`cursor-pointer text-[13px] font-medium uppercase tracking-wide py-2.5 px-3 transition-colors ${
+                                isSubActive(sub.href)
+                                  ? "text-accent bg-accent/10"
+                                  : "text-foreground hover:bg-accent/5 hover:text-accent focus:bg-accent/10 focus:text-accent"
+                              }`}
                             >
                               {sub.label}
                             </Link>
@@ -219,7 +233,11 @@ const Header = () => {
                           key={sub.href}
                           to={sub.href}
                           onClick={() => setMobileOpen(false)}
-                          className="text-sm font-medium text-foreground/70 hover:text-accent transition-colors py-2.5 pl-4 pr-3 flex items-center touch-manipulation"
+                          className={`text-sm font-medium py-2.5 pl-4 pr-3 flex items-center touch-manipulation transition-colors ${
+                            isSubActive(sub.href)
+                              ? "text-accent"
+                              : "text-foreground/70 hover:text-accent"
+                          }`}
                         >
                           {sub.label}
                         </Link>

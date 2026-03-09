@@ -52,7 +52,7 @@ const AdminLogin = () => {
           className="rounded-xl border border-border/60 bg-card/60 p-6 shadow-sm space-y-4"
         >
           <div className="space-y-2">
-            <Label htmlFor="admin-email">Email</Label>
+            <Label htmlFor="admin-email">Email / Username</Label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input

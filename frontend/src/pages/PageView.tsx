@@ -13,6 +13,27 @@ type PageData = {
   content: string;
 };
 
+function transformContentWithEmbeds(raw: string): string {
+  if (!raw) return "<p>No content yet.</p>";
+
+  let html = raw;
+
+  const embedFromId = (id: string) =>
+    `<div class="my-8 flex justify-center"><div class="w-full max-w-3xl aspect-video bg-black/5"><iframe class="w-full h-full" src="https://www.youtube.com/embed/${id}" title="YouTube video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div></div>`;
+
+  // Replace linked YouTube URLs
+  const anchorRegex =
+    /<a[^>]+href="(https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]+)[^"]*)"[^>]*>.*?<\/a>/gi;
+  html = html.replace(anchorRegex, (_, _url: string, id: string) => embedFromId(id));
+
+  // Replace bare YouTube URLs
+  const urlRegex =
+    /(https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]+)[^\s<]*)/gi;
+  html = html.replace(urlRegex, (_full: string, _url: string, id: string) => embedFromId(id));
+
+  return html;
+}
+
 const PageView = () => {
   const { slug } = useParams<{ slug: string }>();
   const [page, setPage] = useState<PageData | null>(null);
@@ -85,7 +106,7 @@ const PageView = () => {
           <div className="container">
             <div
               className="max-w-3xl font-sans text-muted-foreground leading-relaxed prose prose-neutral dark:prose-invert [&_h2]:font-serif [&_h2]:text-xl [&_h2]:text-foreground [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_a]:text-accent [&_a]:underline"
-              dangerouslySetInnerHTML={{ __html: page.content || "<p>No content yet.</p>" }}
+              dangerouslySetInnerHTML={{ __html: transformContentWithEmbeds(page.content) }}
             />
           </div>
         </section>

@@ -202,7 +202,7 @@ const Blog = () => {
                       className="mb-12 md:mb-16"
                     >
                       <Link
-                        to="#"
+                        to={`/news/${featuredPost.id}`}
                         className="group block rounded-2xl overflow-hidden bg-card border border-border/50 shadow-sm hover:shadow-xl hover:border-accent/30 transition-all duration-300 p-6 sm:p-8 md:p-10"
                       >
                         <span className="inline-block px-2.5 py-1 rounded-full bg-accent/15 text-accent text-[10px] font-semibold uppercase tracking-wider mb-3">
@@ -253,7 +253,7 @@ const Blog = () => {
                       className="group"
                     >
                       <Link
-                        to="#"
+                        to={`/news/${post.id}`}
                         className="block h-full rounded-2xl overflow-hidden bg-card border border-border/50 shadow-sm hover:shadow-lg hover:border-accent/30 transition-all duration-300 p-5 sm:p-6"
                       >
                         <span className="inline-block px-2.5 py-1 rounded-full bg-accent/15 text-accent text-[10px] font-semibold uppercase tracking-wider mb-2">

@@ -1,12 +1,30 @@
-import { Outlet, Link, useNavigate } from "react-router-dom";
+import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
 import { useAdmin } from "@/context/AdminContext";
 import { useEffect } from "react";
-import { Newspaper, BookOpen, PlusCircle, LogOut, List, Plus } from "lucide-react";
+import { Newspaper, PlusCircle, LogOut, List, Plus, Users as UsersIcon, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const AdminLayout = () => {
-  const { token, isLoading, logout } = useAdmin();
+  const { token, admin, isLoading, logout, isAdmin } = useAdmin();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const pathname = location.pathname;
+
+  const isNewsPostsActive = pathname === "/admin/posts" || pathname.startsWith("/admin/posts/");
+  const isAddNewsActive = pathname === "/admin/posts/new";
+  const isPagesActive = pathname.startsWith("/admin/pages");
+  const isSubscriptionsActive = pathname.startsWith("/admin/subscriptions");
+  const isProductsActive = pathname.startsWith("/admin/products");
+  const isUsersActive = pathname.startsWith("/admin/users");
+
+  const baseNavClasses =
+    "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors";
+
+  const inactiveClasses =
+    "text-muted-foreground hover:bg-accent/10 hover:text-accent";
+
+  const activeClasses = "bg-accent/10 text-accent";
 
   useEffect(() => {
     if (!isLoading && !token) {
@@ -29,55 +47,81 @@ const AdminLayout = () => {
       <aside className="w-56 border-r border-border/60 bg-card/60 flex flex-col">
         <div className="p-4 border-b border-border/60">
           <h1 className="font-serif text-lg font-semibold text-foreground">Brainfeed Admin</h1>
+          {admin && (
+            <p className="mt-1 text-[11px] text-muted-foreground truncate">
+              Signed in as {admin.email} ({admin.role || "admin"})
+            </p>
+          )}
         </div>
         <nav className="flex-1 p-3 space-y-1">
           <Link
             to="/admin/posts?type=news"
-            className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:bg-accent/10 hover:text-accent transition-colors"
+            className={`${baseNavClasses} ${isNewsPostsActive && !isAddNewsActive ? activeClasses : inactiveClasses}`}
           >
             <Newspaper className="h-4 w-4" />
             News posts
           </Link>
-          <Link
-            to="/admin/posts?type=blog"
-            className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:bg-accent/10 hover:text-accent transition-colors"
-          >
-            <BookOpen className="h-4 w-4" />
-            Blog posts
-          </Link>
-          <div className="pt-2 mt-2 border-t border-border/60">
-            <p className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">Pages</p>
-            <Link
-              to="/admin/pages"
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:bg-accent/10 hover:text-accent transition-colors"
-            >
-              <List className="h-4 w-4" />
-              All Pages
-            </Link>
-            <Link
-              to="/admin/pages/new"
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-accent hover:bg-accent/10 transition-colors"
-            >
-              <Plus className="h-4 w-4" />
-              Add Page
-            </Link>
-          </div>
+          {isAdmin && (
+            <div className="pt-2 mt-2 border-t border-border/60">
+              <p className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">Pages</p>
+              <Link
+                to="/admin/pages"
+                className={`${baseNavClasses} ${isPagesActive ? activeClasses : inactiveClasses}`}
+              >
+                <List className="h-4 w-4" />
+                All Pages
+              </Link>
+              <Link
+                to="/admin/pages/new"
+                className={`${baseNavClasses} ${isPagesActive ? activeClasses : inactiveClasses}`}
+              >
+                <Plus className="h-4 w-4" />
+                Add Page
+              </Link>
+            </div>
+          )}
           <div className="pt-2 mt-2 border-t border-border/60">
             <Link
               to="/admin/posts/new?type=news"
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-accent hover:bg-accent/10 transition-colors"
+              className={`${baseNavClasses} ${isAddNewsActive ? activeClasses : inactiveClasses}`}
             >
               <PlusCircle className="h-4 w-4" />
               Add news
             </Link>
-            <Link
-              to="/admin/posts/new?type=blog"
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-accent hover:bg-accent/10 transition-colors"
-            >
-              <PlusCircle className="h-4 w-4" />
-              Add blog
-            </Link>
           </div>
+          {isAdmin && (
+            <div className="pt-2 mt-2 border-t border-border/60">
+              <p className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">
+                Subscriptions
+              </p>
+              <Link
+                to="/admin/subscriptions"
+                className={`${baseNavClasses} ${isSubscriptionsActive ? activeClasses : inactiveClasses}`}
+              >
+                <Package className="h-4 w-4" />
+                Our subscriptions
+              </Link>
+              <Link
+                to="/admin/products"
+                className={`${baseNavClasses} mt-1 ${isProductsActive ? activeClasses : inactiveClasses}`}
+              >
+                <Package className="h-4 w-4" />
+                Products
+              </Link>
+            </div>
+          )}
+          {isAdmin && (
+            <div className="pt-2 mt-2 border-t border-border/60">
+              <p className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground/80">Users</p>
+              <Link
+                to="/admin/users"
+                className={`${baseNavClasses} ${isUsersActive ? activeClasses : inactiveClasses}`}
+              >
+                <UsersIcon className="h-4 w-4" />
+                Manage users
+              </Link>
+            </div>
+          )}
         </nav>
         <div className="p-3 border-t border-border/60">
           <Link to="/" className="text-xs text-muted-foreground hover:text-foreground block mb-2">

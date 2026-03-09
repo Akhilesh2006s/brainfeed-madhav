@@ -11,18 +11,53 @@ const TopBar = () => {
     >
       <div className="container flex items-center justify-between py-2 sm:py-2.5">
         <div className="hidden md:flex items-center gap-5">
-          <a href="#" className="top-bar-link">MI Champs India</a>
+          <a
+            href="https://michampsindia.com/"
+            target="_blank"
+            rel="noreferrer"
+            className="top-bar-link"
+          >
+            Michampsindia
+          </a>
           <span className="text-primary-foreground/20">·</span>
-          <a href="#" className="top-bar-link">Higher Education Plus</a>
+          <a
+            href="https://highereducationplus.com/"
+            target="_blank"
+            rel="noreferrer"
+            className="top-bar-link"
+          >
+            Higher Education Plus
+          </a>
           <span className="text-primary-foreground/20">·</span>
-          <a href="#" className="top-bar-link">School Search</a>
+          <a
+            href="https://brainfeedmagazine.com/schools-search/"
+            target="_blank"
+            rel="noreferrer"
+            className="top-bar-link"
+          >
+            School Search
+          </a>
         </div>
-        <div className="flex items-center gap-2 sm:gap-4 ml-auto">
+        <div className="flex items-center justify-end gap-2 sm:gap-3 ml-auto">
           {[Facebook, Twitter, Instagram, Linkedin, Youtube, Mail].map((Icon, i) => (
             <motion.a
               key={i}
-              href="#"
-              className="top-bar-link p-2 -m-2 min-h-[44px] min-w-[44px] flex items-center justify-center touch-manipulation md:min-h-0 md:min-w-0 md:p-0"
+              href={
+                i === 0
+                  ? "https://www.facebook.com/brainfeededumag"
+                  : i === 1
+                  ? "https://twitter.com/brainfeededumag"
+                  : i === 2
+                  ? "https://www.instagram.com/brainfeededumag/"
+                  : i === 3
+                  ? "https://www.linkedin.com/in/brainfeededumag/"
+                  : i === 4
+                  ? "https://www.youtube.com/@brainfeedmagazine"
+                  : "mailto:info@brainfeedmagazine.com"
+              }
+              target="_blank"
+              rel={i === 5 ? undefined : "noreferrer"}
+              className="top-bar-link flex items-center justify-center"
               whileHover={{ scale: 1.2 }}
               transition={{ type: "spring", stiffness: 400 }}
             >

@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import About from "./pages/About";
 import Blog from "./pages/Blog";
 import News from "./pages/News";
+import NewsArticle from "./pages/NewsArticle";
 import Subscribe from "./pages/Subscribe";
 import Contact from "./pages/Contact";
 import CancellationRefundPolicy from "./pages/CancellationRefundPolicy";
@@ -19,6 +20,7 @@ import Cart from "./pages/Cart";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import Profile from "./pages/Profile";
+import MagazineDetail from "./pages/MagazineDetail";
 import { AdminProvider } from "@/context/AdminContext";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminLayout from "./pages/admin/AdminLayout";
@@ -26,6 +28,10 @@ import AdminPostList from "./pages/admin/AdminPostList";
 import AdminPostForm from "./pages/admin/AdminPostForm";
 import AdminPageList from "./pages/admin/AdminPageList";
 import AdminPageForm from "./pages/admin/AdminPageForm";
+import AdminUserList from "./pages/admin/AdminUserList";
+import AdminSubscriptionList from "./pages/admin/AdminSubscriptionList";
+import AdminProductList from "./pages/admin/AdminProductList";
+import AdminProductForm from "./pages/admin/AdminProductForm";
 import PageView from "./pages/PageView";
 import NotFound from "./pages/NotFound";
 
@@ -45,6 +51,7 @@ const App = () => (
                 <Route path="/about" element={<About />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/news" element={<News />} />
+                <Route path="/news/:id" element={<NewsArticle />} />
                 <Route path="/subscribe" element={<Subscribe />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/cancellation-refund-policy" element={<CancellationRefundPolicy />} />
@@ -52,6 +59,7 @@ const App = () => (
                 <Route path="/shipping-policy" element={<ShippingPolicy />} />
                 <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
                 <Route path="/cart" element={<Cart />} />
+                <Route path="/magazine/:id" element={<MagazineDetail />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<SignUp />} />
                 <Route path="/profile" element={<Profile />} />
@@ -61,6 +69,17 @@ const App = () => (
                   <Route index element={<AdminPostList />} />
                   <Route path="new" element={<AdminPostForm />} />
                   <Route path=":id/edit" element={<AdminPostForm />} />
+                </Route>
+                <Route path="/admin/subscriptions" element={<AdminLayout />}>
+                  <Route index element={<AdminSubscriptionList />} />
+                </Route>
+                <Route path="/admin/products" element={<AdminLayout />}>
+                  <Route index element={<AdminProductList />} />
+                  <Route path="new" element={<AdminProductForm />} />
+                  <Route path=":id/edit" element={<AdminProductForm />} />
+                </Route>
+                <Route path="/admin/users" element={<AdminLayout />}>
+                  <Route index element={<AdminUserList />} />
                 </Route>
                 <Route path="/admin/pages" element={<AdminLayout />}>
                   <Route index element={<AdminPageList />} />

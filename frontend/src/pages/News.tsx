@@ -10,6 +10,13 @@ import { Input } from "@/components/ui/input";
 const newsCategorySlugToLabel: Record<string, string> = {
   achievement: "Achievement",
   "press-release": "Press Release",
+  career: "Career",
+  education: "Education",
+  "institutional-profile": "Institutional Profile",
+  internship: "Internship",
+  jobs: "Jobs",
+  "science-environment": "Science & Environment",
+  technology: "Technology",
   "expert-view": "Expert View",
 };
 
@@ -17,6 +24,13 @@ const newsCategories = [
   "All",
   "Achievement",
   "Press Release",
+  "Career",
+  "Education",
+  "Institutional Profile",
+  "Internship",
+  "Jobs",
+  "Science & Environment",
+  "Technology",
   "Expert View",
 ];
 
@@ -26,6 +40,7 @@ type NewsArticle = {
   id: number | string;
   image?: string;
   imageUrl?: string;
+  imageAlt?: string;
   title: string;
   excerpt: string;
   date: string;
@@ -164,14 +179,14 @@ const News = () => {
                       className="mb-12 md:mb-16"
                     >
                       <Link
-                        to="#"
+                        to={`/news/${featuredArticle.id}`}
                         className="group block rounded-2xl overflow-hidden bg-card border border-border/50 shadow-sm hover:shadow-xl hover:border-accent/30 transition-all duration-300"
                       >
                         <div className="grid md:grid-cols-2 gap-0">
                           <div className="relative aspect-[16/10] md:aspect-auto md:min-h-[320px]">
                             <img
                               src={getArticleImageSrc(featuredArticle)}
-                              alt=""
+                              alt={featuredArticle.imageAlt || featuredArticle.title}
                               className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                             />
                           </div>
@@ -224,13 +239,13 @@ const News = () => {
                         className="group"
                       >
                         <Link
-                          to="#"
+                          to={`/news/${post.id}`}
                           className="block h-full rounded-2xl overflow-hidden bg-card border border-border/50 shadow-sm hover:shadow-lg hover:border-accent/30 transition-all duration-300"
                         >
                           <div className="relative overflow-hidden aspect-[16/10]">
                             <img
                               src={getArticleImageSrc(post)}
-                              alt=""
+                              alt={post.imageAlt || post.title}
                               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                             />
                             <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-background/90 text-[10px] font-semibold uppercase tracking-wider text-foreground">

@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ScrollReveal from "@/components/ScrollReveal";
 import { BookOpen, Users, School, Award, Sparkles, Heart, Target, Quote } from "lucide-react";
+import mainCover from "@/assets/WhatsApp Image 2026-02-10 at 10.48.30 AM.jpeg";
 import primary2Cover from "@/assets/WhatsApp Image 2026-02-10 at 10.48.30 AM (1).jpeg";
 import primary1Cover from "@/assets/WhatsApp Image 2026-02-10 at 10.48.30 AM (2).jpeg";
 import juniorCover from "@/assets/WhatsApp Image 2026-02-10 at 10.48.31 AM.jpeg";
@@ -161,7 +162,14 @@ const About = () => {
                 >
                   <article className="glass-card overflow-hidden flex flex-col md:flex-row gap-0">
                     <div className="md:w-1/3 min-h-[220px] md:min-h-[280px] flex items-center justify-center bg-secondary/50 overflow-hidden shrink-0">
-                      {edition.title === "Brainfeed Primary 2" ? (
+                      {edition.title === "Brainfeed Magazine" ? (
+                        <img
+                          src={mainCover}
+                          alt="Brainfeed Magazine cover"
+                          className="w-full h-full min-h-[220px] md:min-h-[280px] object-cover object-top"
+                          loading="lazy"
+                        />
+                      ) : edition.title === "Brainfeed Primary 2" ? (
                         <img
                           src={primary2Cover}
                           alt="Brainfeed Primary 2 magazine cover"

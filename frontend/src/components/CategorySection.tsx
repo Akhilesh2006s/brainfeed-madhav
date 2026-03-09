@@ -1,7 +1,7 @@
 import ScrollReveal from "./ScrollReveal";
 
 interface CategoryArticle {
-  image: string;
+  image?: string;
   title: string;
   date: string;
   tag?: string;
@@ -31,12 +31,16 @@ const CategorySection = ({ title, articles }: CategorySectionProps) => {
           <ScrollReveal direction="up">
             <article className="glass-card overflow-hidden flex flex-col h-full">
               <div className="relative">
-                <img
-                  src={featured.image}
-                  alt={featured.title}
-                  className="w-full h-52 sm:h-56 md:h-64 object-cover"
-                  loading="lazy"
-                />
+                {featured.image ? (
+                  <img
+                    src={featured.image}
+                    alt={featured.title}
+                    className="w-full h-52 sm:h-56 md:h-64 object-cover"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="w-full h-52 sm:h-56 md:h-64 bg-muted" />
+                )}
               </div>
               <div className="p-4 sm:p-5 md:p-6 flex flex-col gap-3">
                 <span className="inline-flex items-center px-3 py-1 rounded-full bg-sky-100 text-sky-800 text-[11px] font-semibold uppercase tracking-[0.18em]">
@@ -66,12 +70,16 @@ const CategorySection = ({ title, articles }: CategorySectionProps) => {
               <ScrollReveal key={article.title} delay={0.05 * index} direction="up">
                 <article className="glass-card flex gap-3 md:gap-4 p-3 sm:p-3.5 md:p-4 min-h-[72px] sm:min-h-0">
                   <div className="hidden sm:block w-24 md:w-28 flex-shrink-0 overflow-hidden rounded-lg">
-                    <img
-                      src={article.image}
-                      alt={article.title}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
+                    {article.image ? (
+                      <img
+                        src={article.image}
+                        alt={article.title}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-muted" />
+                    )}
                   </div>
                   <div className="flex-1 flex flex-col gap-1">
                     <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-sky-50 text-sky-800 text-[10px] font-semibold uppercase tracking-[0.16em]">

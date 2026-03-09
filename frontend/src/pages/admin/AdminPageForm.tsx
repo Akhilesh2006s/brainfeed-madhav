@@ -24,6 +24,7 @@ function slugFromTitle(title: string): string {
 function RichTextEditor({ value, onChange, placeholder }: { value: string; onChange: (html: string) => void; placeholder?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const isInternal = useRef(false);
+  const savedRange = useRef<Range | null>(null);
   const [formatState, setFormatState] = useState({ bold: false, italic: false, underline: false, strike: false });
 
   const updateFormatState = () => {
@@ -32,6 +33,9 @@ function RichTextEditor({ value, onChange, placeholder }: { value: string; onCha
     const sel = window.getSelection();
     const inEditor = sel && (el.contains(sel.anchorNode) || el.contains(sel.focusNode));
     if (!inEditor) return;
+    if (sel && sel.rangeCount > 0) {
+      savedRange.current = sel.getRangeAt(0).cloneRange();
+    }
     setFormatState({
       bold: document.queryCommandState("bold"),
       italic: document.queryCommandState("italic"),
@@ -69,7 +73,13 @@ function RichTextEditor({ value, onChange, placeholder }: { value: string; onCha
 
   const addLink = () => {
     const url = window.prompt("Link URL:");
-    if (url) cmd("createLink", url);
+    if (!url) return;
+    const sel = window.getSelection();
+    if (savedRange.current && sel) {
+      sel.removeAllRanges();
+      sel.addRange(savedRange.current);
+    }
+    cmd("createLink", url);
   };
 
   const btn = (active: boolean) =>
@@ -257,8 +267,19 @@ const AdminPageForm = () => {
           <RichTextEditor
             value={content}
             onChange={setContent}
-            placeholder="Add content using the toolbar: headings, lists, links, etc."
+            placeholder="Add content using the toolbar: headings, lists, links, etc. Paste a YouTube link on its own line to embed the video."
           />
+          <p className="text-xs text-muted-foreground">
+            To embed a YouTube video, paste the video URL (for example
+            {" "}
+            <code>https://www.youtube.com/watch?v=...</code>
+            {" "}
+            or
+            {" "}
+            <code>https://youtu.be/...</code>
+            {" "}
+            on its own line. It will be shown as an embedded video on the page.
+          </p>
         </div>
         <div className="flex gap-3">
           <Button type="submit" disabled={saving}>

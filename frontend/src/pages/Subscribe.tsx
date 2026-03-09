@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import TopBar from "@/components/TopBar";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -13,88 +14,44 @@ const shippingNotes = [
   "The magazines will be delivered on or before 20th of that month.",
 ];
 
-const prePrimaryPacks = [
-  {
-    name: "Tiny Pack",
-    oldPrice: "₹12,100.00",
-    price: "₹9,999.00",
-    badge: "-17%",
-    tag: "Pre Primary Packs",
-  },
-  {
-    name: "Best Pack",
-    oldPrice: "₹15,600.00",
-    price: "₹11,999.00",
-    badge: "-23%",
-    tag: "Pre Primary Packs",
-  },
-  {
-    name: "Big Pack",
-    oldPrice: "₹24,200.00",
-    price: "₹18,999.00",
-    badge: "-21%",
-    tag: "Pre Primary Packs",
-  },
-];
+const API_BASE = (import.meta.env.VITE_API_URL as string) || "";
 
-const libraryPacks = [
-  {
-    name: "Mini Library Pack",
-    oldPrice: "₹18,000.00",
-    price: "₹14,999.00",
-    badge: "-17%",
-  },
-  {
-    name: "Favourite Library Pack",
-    oldPrice: "₹30,000.00",
-    price: "₹23,999.00",
-    badge: "-20%",
-  },
-  {
-    name: "Jumbo Library Pack",
-    oldPrice: "₹48,000.00",
-    price: "₹35,999.00",
-    badge: "-25%",
-  },
-];
-
-const classroomPacks = [
-  {
-    name: "Classroom Pack 25",
-    oldPrice: "₹150,000.00",
-    price: "₹120,000.00",
-    badge: "-20%",
-  },
-  {
-    name: "Classroom Pack of 40",
-    oldPrice: "₹213,000.00",
-    price: "₹170,000.00",
-    badge: "-20%",
-  },
-  {
-    name: "Classroom Pack of 60",
-    oldPrice: "₹297,000.00",
-    price: "₹225,000.00",
-    badge: "-24%",
-  },
-];
-
-const magazines = [
-  { name: "Brainfeed Magazine", price: "₹2,500.00" },
-  { name: "Brainfeed High", price: "₹1,250.00" },
-  { name: "Brainfeed Primary II", price: "₹1,050.00" },
-  { name: "Brainfeed Junior", price: "₹850.00" },
-  { name: "Brainfeed Primary I", price: "₹1,050.00" },
-];
-
-const parsePriceToNumber = (price: string) => {
-  const numeric = price.replace(/[^0-9]/g, "");
-  if (!numeric) return 0;
-  return Number(numeric) / 100;
+type Product = {
+  id: string;
+  category: "pre-primary" | "library" | "classroom" | "magazine";
+  name: string;
+  description?: string;
+  badge?: string;
+  tag?: string;
+  price: number;
+  oldPrice?: number;
+  currency?: string;
+  imageUrl?: string;
 };
+
+const formatRupees = (amount: number, currency = "INR") =>
+  amount.toLocaleString("en-IN", { style: "currency", currency, maximumFractionDigits: 0 });
 
 const Subscribe = () => {
   const { addItem } = useCart();
+  const [products, setProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/api/products`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data: Product[]) => {
+        if (Array.isArray(data) && data.length) setProducts(data);
+      })
+      .catch(() => {
+        // Fallback to built-in static data when API fails – keep page usable
+        setProducts([]);
+      });
+  }, []);
+
+  const prePrimaryPacks = products.filter((p) => p.category === "pre-primary");
+  const libraryPacks = products.filter((p) => p.category === "library");
+  const classroomPacks = products.filter((p) => p.category === "classroom");
+  const magazines = products.filter((p) => p.category === "magazine");
 
   return (
     <div className="min-h-screen bg-background">
@@ -150,21 +107,34 @@ const Subscribe = () => {
                 <ScrollReveal key={pack.name} direction="up" once>
                   <Card className="glass-card h-full flex flex-col">
                     <CardHeader className="pb-4">
+                      {pack.imageUrl && (
+                        <div className="mb-3 rounded-lg overflow-hidden">
+                          <img src={pack.imageUrl} alt={pack.name} className="w-full h-32 object-cover" />
+                        </div>
+                      )}
                       <div className="flex items-center justify-between mb-2">
                         <span className="inline-flex items-center rounded-full bg-accent/10 text-accent text-xs font-semibold px-3 py-1">
-                          {pack.badge}
+                          {pack.badge || ""}
                         </span>
                         <span className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
-                          {pack.tag}
+                          {pack.tag || "Pre Primary Packs"}
                         </span>
                       </div>
                       <CardTitle className="text-xl font-serif">{pack.name}</CardTitle>
-                      <CardDescription>Ideal bundle for early-years classrooms and centres.</CardDescription>
+                      <CardDescription>
+                        {pack.description || "Ideal bundle for early-years classrooms and centres."}
+                      </CardDescription>
                     </CardHeader>
                     <CardContent className="pt-0 flex-1 flex flex-col justify-between">
                       <div className="space-y-1 mb-4">
-                        <p className="text-sm text-muted-foreground line-through">{pack.oldPrice}</p>
-                        <p className="text-xl font-semibold text-foreground">{pack.price}</p>
+                        {pack.oldPrice ? (
+                          <p className="text-sm text-muted-foreground line-through">
+                            {formatRupees(pack.oldPrice, pack.currency)}
+                          </p>
+                        ) : null}
+                        <p className="text-xl font-semibold text-foreground">
+                          {formatRupees(pack.price, pack.currency)}
+                        </p>
                       </div>
                     </CardContent>
                     <CardFooter className="pt-0">
@@ -175,7 +145,7 @@ const Subscribe = () => {
                           addItem({
                             id: `pre-primary-${pack.name}`,
                             name: `${pack.name} (Pre Primary Pack)`,
-                            price: parsePriceToNumber(pack.price),
+                            price: pack.price,
                           })
                         }
                       >
@@ -195,21 +165,34 @@ const Subscribe = () => {
                 <ScrollReveal key={pack.name} direction="up" once>
                   <Card className="glass-card h-full flex flex-col">
                     <CardHeader className="pb-4">
+                      {pack.imageUrl && (
+                        <div className="mb-3 rounded-lg overflow-hidden">
+                          <img src={pack.imageUrl} alt={pack.name} className="w-full h-32 object-cover" />
+                        </div>
+                      )}
                       <div className="flex items-center justify-between mb-2">
                         <span className="inline-flex items-center rounded-full bg-accent/10 text-accent text-xs font-semibold px-3 py-1">
-                          {pack.badge}
+                          {pack.badge || ""}
                         </span>
                         <span className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
                           Library Packs
                         </span>
                       </div>
                       <CardTitle className="text-xl font-serif">{pack.name}</CardTitle>
-                      <CardDescription>Thoughtfully curated for school and institutional libraries.</CardDescription>
+                      <CardDescription>
+                        {pack.description || "Thoughtfully curated for school and institutional libraries."}
+                      </CardDescription>
                     </CardHeader>
                     <CardContent className="pt-0 flex-1 flex flex-col justify-between">
                       <div className="space-y-1 mb-4">
-                        <p className="text-sm text-muted-foreground line-through">{pack.oldPrice}</p>
-                        <p className="text-xl font-semibold text-foreground">{pack.price}</p>
+                        {pack.oldPrice ? (
+                          <p className="text-sm text-muted-foreground line-through">
+                            {formatRupees(pack.oldPrice, pack.currency)}
+                          </p>
+                        ) : null}
+                        <p className="text-xl font-semibold text-foreground">
+                          {formatRupees(pack.price, pack.currency)}
+                        </p>
                       </div>
                     </CardContent>
                     <CardFooter className="pt-0">
@@ -220,7 +203,7 @@ const Subscribe = () => {
                           addItem({
                             id: `library-${pack.name}`,
                             name: `${pack.name} (Library Pack)`,
-                            price: parsePriceToNumber(pack.price),
+                            price: pack.price,
                           })
                         }
                       >
@@ -240,21 +223,34 @@ const Subscribe = () => {
                 <ScrollReveal key={pack.name} direction="up" once>
                   <Card className="glass-card h-full flex flex-col">
                     <CardHeader className="pb-4">
+                      {pack.imageUrl && (
+                        <div className="mb-3 rounded-lg overflow-hidden">
+                          <img src={pack.imageUrl} alt={pack.name} className="w-full h-32 object-cover" />
+                        </div>
+                      )}
                       <div className="flex items-center justify-between mb-2">
                         <span className="inline-flex items-center rounded-full bg-accent/10 text-accent text-xs font-semibold px-3 py-1">
-                          {pack.badge}
+                          {pack.badge || ""}
                         </span>
                         <span className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">
                           Classroom Packs
                         </span>
                       </div>
                       <CardTitle className="text-xl font-serif">{pack.name}</CardTitle>
-                      <CardDescription>Bulk magazine packs for whole-class engagement.</CardDescription>
+                      <CardDescription>
+                        {pack.description || "Bulk magazine packs for whole-class engagement."}
+                      </CardDescription>
                     </CardHeader>
                     <CardContent className="pt-0 flex-1 flex flex-col justify-between">
                       <div className="space-y-1 mb-4">
-                        <p className="text-sm text-muted-foreground line-through">{pack.oldPrice}</p>
-                        <p className="text-xl font-semibold text-foreground">{pack.price}</p>
+                        {pack.oldPrice ? (
+                          <p className="text-sm text-muted-foreground line-through">
+                            {formatRupees(pack.oldPrice, pack.currency)}
+                          </p>
+                        ) : null}
+                        <p className="text-xl font-semibold text-foreground">
+                          {formatRupees(pack.price, pack.currency)}
+                        </p>
                       </div>
                     </CardContent>
                     <CardFooter className="pt-0">
@@ -265,7 +261,7 @@ const Subscribe = () => {
                           addItem({
                             id: `classroom-${pack.name}`,
                             name: `${pack.name} (Classroom Pack)`,
-                            price: parsePriceToNumber(pack.price),
+                            price: pack.price,
                           })
                         }
                       >
@@ -293,10 +289,20 @@ const Subscribe = () => {
                 <ScrollReveal key={mag.name} direction="up" once>
                   <Card className="glass-card h-full flex flex-col items-stretch">
                     <CardHeader className="pb-3">
+                      {mag.imageUrl && (
+                        <div className="mb-3 rounded-lg overflow-hidden">
+                          <img src={mag.imageUrl} alt={mag.name} className="w-full h-28 object-cover" />
+                        </div>
+                      )}
                       <CardTitle className="text-lg font-serif">{mag.name}</CardTitle>
                     </CardHeader>
                     <CardContent className="pt-0 flex-1 flex flex-col justify-between">
-                      <p className="text-lg font-semibold text-foreground mb-4">{mag.price}</p>
+                      <p className="text-sm text-muted-foreground mb-1">
+                        {mag.description || ""}
+                      </p>
+                      <p className="text-lg font-semibold text-foreground mb-4">
+                        {formatRupees(mag.price, mag.currency)}
+                      </p>
                     </CardContent>
                     <CardFooter className="pt-0">
                       <Button
@@ -306,7 +312,7 @@ const Subscribe = () => {
                           addItem({
                             id: `magazine-${mag.name}`,
                             name: mag.name,
-                            price: parsePriceToNumber(mag.price),
+                            price: mag.price,
                           })
                         }
                       >
