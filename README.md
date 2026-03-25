@@ -19,6 +19,7 @@ brainfeed-collective-main/
 cd backend
 cp .env.example .env
 # Edit .env: set MONGO_URI, JWT_SECRET, CLOUDINARY_*, ADMIN_EMAIL, ADMIN_PASSWORD
+# Optional (payments): RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET
 npm install
 npm start
 ```
@@ -43,13 +44,15 @@ App runs at **http://localhost:8080**. In dev, `/api` requests are proxied to th
 - Deploy the `backend/` folder. Set these env vars in the platform:
   - `MONGO_URI`, `JWT_SECRET`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
   - `ADMIN_EMAIL`, `ADMIN_PASSWORD`
+  - Payments (Razorpay): `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`
   - Optional: `PORT` (default 3001), `HOST` (default 0.0.0.0)
   - Optional: `CORS_ORIGIN` or `FRONTEND_URL` – your frontend URL(s), comma-separated, so the API only accepts requests from your site. Leave unset to allow all origins.
-- Start command: `npm start` (runs `node index.cjs`).
+- Start command: `npm start` (runs `node index.js`).
 
 **Frontend** (Vercel, Netlify, etc.)
 
 - Set **build-time** env var: `VITE_API_URL` = your backend URL (e.g. `https://your-api.railway.app`). This is baked into the build; set it in the platform’s “Environment variables” before building.
+- Set **build-time** env var (payments): `VITE_RAZORPAY_KEY_ID` = your Razorpay key id (safe to expose; do **not** expose the secret).
 - Build: `npm run build`. Publish the `dist/` folder.
 - SPA routing: `frontend/vercel.json` and `frontend/netlify.toml` are included so `/admin/posts`, `/news`, etc. work on refresh. Other hosts: serve `index.html` for all routes (single-page app).
 
