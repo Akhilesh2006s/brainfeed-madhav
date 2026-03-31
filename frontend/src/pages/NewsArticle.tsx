@@ -257,23 +257,6 @@ const NewsArticle = () => {
                     </p>
                   )}
                 </div>
-                {Array.isArray(post.tags) && post.tags.length > 0 && (
-                  <div className="mt-8 pt-6 border-t border-border/60" aria-label="Article topics">
-                    <h2 className="font-serif text-sm uppercase tracking-[0.22em] text-muted-foreground mb-3">
-                      Tags
-                    </h2>
-                    <div className="flex flex-wrap gap-2">
-                      {post.tags.map((tag, i) => (
-                        <span
-                          key={`${tag}-${i}`}
-                          className="inline-flex items-center rounded-md border border-border/70 bg-muted/40 px-2.5 py-1 text-[11px] text-muted-foreground"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </article>
 
               <ScrollReveal direction="up" once>
